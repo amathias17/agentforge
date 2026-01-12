@@ -7,8 +7,6 @@ from pathlib import Path
 import json
 import re
 
-from jinja2 import Environment, BaseLoader
-
 from agentforge.core import executor, repo_analyzer, spec_parser
 from agentforge.core.prompt_builder import build_agent_generation_prompt
 
@@ -65,6 +63,11 @@ def _render_agent_files(agents: list[dict], output_path: Path) -> None:
 
 
 def _load_template():
+    try:
+        from jinja2 import Environment, BaseLoader
+    except ImportError as exc:
+        raise RuntimeError("Jinja2 is required to render agent templates.") from exc
+
     template_text = _TEMPLATE_PATH.read_text(encoding="utf-8")
     env = Environment(loader=BaseLoader(), autoescape=False)
     return env.from_string(template_text)
