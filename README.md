@@ -17,14 +17,19 @@ Use the CLI to generate agent definitions or run a task with a chosen agent file
 Generate agent files:
 
 ```
-agentforge generate
+agentforge generate --spec spec/spec.md --output-dir output
 ```
 
 Run a task with an existing agent definition:
 
 ```
-agentforge run
+agentforge run --agent output/<agent-name>/agent.md --task "Describe the task"
 ```
+
+## Spec Location
+
+A sample spec template lives at `spec/spec.md`. Edit it or replace it with your own
+spec file, then pass the path via `--spec`.
 
 ## Agent Schema
 
