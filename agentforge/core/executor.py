@@ -8,14 +8,30 @@ import json
 import subprocess
 
 
-def execute(prompt: str) -> str:
-    result = subprocess.run(
-        ["codex"],
-        input=prompt,
-        text=True,
-        capture_output=True,
-        check=True,
-    )
+DEFAULT_TIMEOUT_SECONDS = 300
+
+
+def execute(prompt: str, timeout: int = DEFAULT_TIMEOUT_SECONDS) -> str:
+    try:
+        result = subprocess.run(
+            ["codex"],
+            input=prompt,
+            text=True,
+            capture_output=True,
+            check=True,
+            timeout=timeout,
+        )
+    except FileNotFoundError as exc:
+        raise RuntimeError("Codex executable not found on PATH.") from exc
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(
+            f"Codex execution exceeded timeout ({timeout}s)."
+        ) from exc
+    except subprocess.CalledProcessError as exc:
+        stderr = (exc.stderr or "").strip()
+        stdout = (exc.stdout or "").strip()
+        detail = stderr or stdout or "No output captured from codex."
+        raise RuntimeError(f"Codex execution failed: {detail}") from exc
     return result.stdout
 
 

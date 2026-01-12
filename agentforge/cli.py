@@ -81,7 +81,7 @@ def main() -> None:
             result = executor.run_with_agent(args.agent, task_text, context)
             print(result)
             return
-    except (OSError, ValueError, subprocess.CalledProcessError) as exc:
+    except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
 
