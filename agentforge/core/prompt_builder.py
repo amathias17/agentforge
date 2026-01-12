@@ -13,6 +13,21 @@ def build_agent_generation_prompt(spec: dict, repo_meta: dict) -> str:
         "You must not execute tasks, run commands, write files, or perform any actions.\n"
         "Return structured JSON only.\n"
         "Minimize the number of agents and ensure roles do not overlap.\n\n"
+        "Output schema:\n"
+        "{\n"
+        '  "agents": [\n'
+        "    {\n"
+        '      "name": "string",\n'
+        '      "role": "string",\n'
+        '      "responsibilities": ["string", "..."],\n'
+        '      "constraints": ["string", "..."],\n'
+        '      "exclusions": ["string", "..."],\n'
+        '      "communication_style": "string"\n'
+        "    }\n"
+        "  ]\n"
+        "}\n"
+        "Required fields: name, role, responsibilities, constraints.\n"
+        "Optional fields: exclusions, communication_style.\n\n"
         "Specification:\n"
         f"{spec_text}\n\n"
         "Repository Metadata:\n"
