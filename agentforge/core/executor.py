@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import json
+import os
 import subprocess
 
 
@@ -12,9 +13,10 @@ DEFAULT_TIMEOUT_SECONDS = 300
 
 
 def execute(prompt: str, timeout: int = DEFAULT_TIMEOUT_SECONDS) -> str:
+    executable = os.environ.get("AGENTFORGE_CODEX_PATH") or "codex"
     try:
         result = subprocess.run(
-            ["codex"],
+            [executable],
             input=prompt,
             text=True,
             capture_output=True,
@@ -22,7 +24,17 @@ def execute(prompt: str, timeout: int = DEFAULT_TIMEOUT_SECONDS) -> str:
             timeout=timeout,
         )
     except FileNotFoundError as exc:
-        raise RuntimeError("Codex executable not found on PATH.") from exc
+        if executable == "codex":
+            message = (
+                "Codex executable not found on PATH. Install the Codex CLI and "
+                "ensure it is available in PATH, or set AGENTFORGE_CODEX_PATH."
+            )
+        else:
+            message = (
+                "Codex executable not found at AGENTFORGE_CODEX_PATH. "
+                "Update the environment variable or install the Codex CLI."
+            )
+        raise RuntimeError(message) from exc
     except subprocess.TimeoutExpired as exc:
         raise RuntimeError(
             f"Codex execution exceeded timeout ({timeout}s)."
