@@ -14,9 +14,10 @@ DEFAULT_TIMEOUT_SECONDS = 300
 
 def execute(prompt: str, timeout: int = DEFAULT_TIMEOUT_SECONDS) -> str:
     executable = os.environ.get("AGENTFORGE_CODEX_PATH") or "codex"
+    command = _build_command(executable) + ["exec", "-"]
     try:
         result = subprocess.run(
-            [executable],
+            command,
             input=prompt,
             text=True,
             capture_output=True,
@@ -45,6 +46,15 @@ def execute(prompt: str, timeout: int = DEFAULT_TIMEOUT_SECONDS) -> str:
         detail = stderr or stdout or "No output captured from codex."
         raise RuntimeError(f"Codex execution failed: {detail}") from exc
     return result.stdout
+
+
+def _build_command(executable: str) -> list[str]:
+    lowered = executable.lower()
+    if lowered.endswith(".cmd") or lowered.endswith(".bat"):
+        return ["cmd", "/c", executable]
+    if lowered.endswith(".ps1"):
+        return ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", executable]
+    return [executable]
 
 
 def run_with_agent(agent_path: str, task: str, context: dict) -> str:

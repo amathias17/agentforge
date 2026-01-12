@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 import pytest
@@ -38,3 +39,38 @@ def test_execute_called_process_error_uses_stderr(monkeypatch: pytest.MonkeyPatc
     monkeypatch.setattr(subprocess, "run", fake_run)
     with pytest.raises(RuntimeError, match="err"):
         executor.execute("prompt")
+
+
+def test_execute_wraps_cmd_executable(monkeypatch: pytest.MonkeyPatch) -> None:
+    seen = {}
+
+    def fake_run(args, **_kwargs):
+        seen["args"] = args
+        return subprocess.CompletedProcess(args=args, returncode=0, stdout="ok")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    monkeypatch.setenv("AGENTFORGE_CODEX_PATH", r"C:\tools\codex.cmd")
+
+    executor.execute("prompt")
+
+    assert seen["args"][:2] == ["cmd", "/c"]
+    assert seen["args"][2].endswith("codex.cmd")
+    assert seen["args"][3:5] == ["exec", "-"]
+
+
+def test_execute_wraps_powershell_script(monkeypatch: pytest.MonkeyPatch) -> None:
+    seen = {}
+
+    def fake_run(args, **_kwargs):
+        seen["args"] = args
+        return subprocess.CompletedProcess(args=args, returncode=0, stdout="ok")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    monkeypatch.setenv("AGENTFORGE_CODEX_PATH", r"C:\tools\codex.ps1")
+
+    executor.execute("prompt")
+
+    assert seen["args"][:4] == ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass"]
+    assert seen["args"][4] == "-File"
+    assert seen["args"][5].endswith("codex.ps1")
+    assert seen["args"][6:8] == ["exec", "-"]
