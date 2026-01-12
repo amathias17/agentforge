@@ -100,9 +100,9 @@ def analyze_repo(root: str) -> dict:
     frameworks.update(_detect_frameworks_from_files(root_path))
     frameworks.update(_detect_frameworks_from_dependencies(root_path))
 
-    languages = Counter(
-        {_EXTENSION_LANGUAGE[ext]: count for ext, count in extension_counts.items()}
-    )
+    languages: Counter[str] = Counter()
+    for ext, count in extension_counts.items():
+        languages[_EXTENSION_LANGUAGE[ext]] += count
     primary_languages = [name for name, _ in languages.most_common()]
 
     size = _classify_size(total_files)
