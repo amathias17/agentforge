@@ -60,14 +60,16 @@ def main() -> None:
 
     try:
         if args.command == "generate":
-            spec = spec_parser.parse_spec(args.spec)
-            repo_meta = repo_analyzer.analyze_repo(args.repo)
-            agents = agent_generator.generate_agents(spec, repo_meta)
             if args.output_dir:
                 output_dir = Path(args.output_dir)
-                output_dir.mkdir(parents=True, exist_ok=True)
+                agents = agent_generator.generate_agent_files(
+                    args.spec, args.repo, str(output_dir)
+                )
                 _write_output(str(output_dir / "agents.json"), agents)
             else:
+                spec = spec_parser.parse_spec(args.spec)
+                repo_meta = repo_analyzer.analyze_repo(args.repo)
+                agents = agent_generator.generate_agents(spec, repo_meta)
                 _write_output(None, agents)
             return
 
