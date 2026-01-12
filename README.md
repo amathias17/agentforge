@@ -39,3 +39,18 @@ Required:
 Optional:
 - `exclusions`
 - `communication_style`
+
+## Spec Format
+
+Specs are Markdown files with `# ` headings for each top-level section.
+
+Required sections:
+- `Goals`
+- `Constraints`
+
+Optional sections:
+- `Context`
+- `Deliverables`
+- `Out of Scope`
+- `Agents`
+- `Responsibilities`
