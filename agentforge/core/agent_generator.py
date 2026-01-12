@@ -14,6 +14,7 @@ from agentforge.core.prompt_builder import build_agent_generation_prompt
 
 
 _REQUIRED_FIELDS = {"name", "role", "responsibilities", "constraints"}
+_OPTIONAL_FIELDS = {"exclusions", "communication_style"}
 _TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "templates" / "agent.md.j2"
 
 
@@ -33,6 +34,9 @@ def generate_agents(spec: dict, repo_meta: dict) -> list[dict]:
         missing = _REQUIRED_FIELDS - agent.keys()
         if missing:
             raise ValueError(f"Agent missing required fields: {sorted(missing)}")
+        unknown = set(agent.keys()) - _REQUIRED_FIELDS - _OPTIONAL_FIELDS
+        if unknown:
+            raise ValueError(f"Agent has unknown fields: {sorted(unknown)}")
         normalized.append(agent)
 
     return normalized

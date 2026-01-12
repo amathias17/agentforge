@@ -25,3 +25,17 @@ Run a task with an existing agent definition:
 ```
 agentforge run
 ```
+
+## Agent Schema
+
+Generated agent definitions use the following fields:
+
+Required:
+- `name`
+- `role`
+- `responsibilities`
+- `constraints`
+
+Optional:
+- `exclusions`
+- `communication_style`
