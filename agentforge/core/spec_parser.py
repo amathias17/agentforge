@@ -24,6 +24,8 @@ def parse_spec(path: str) -> dict:
         raise ValueError(f"Spec path is a directory: {spec_path}")
 
     raw_text = spec_path.read_text(encoding="utf-8")
+    if raw_text.startswith("\ufeff"):
+        raw_text = raw_text.lstrip("\ufeff")
     if not raw_text.strip():
         raise ValueError(f"Spec file is empty: {spec_path}")
 
