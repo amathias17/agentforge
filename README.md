@@ -26,6 +26,11 @@ Run a task with an existing agent definition:
 agentforge run --agent output/<agent-name>/agent.md --task "Describe the task"
 ```
 
+## Codex CLI Setup
+
+AgentForge shells out to the Codex CLI. Install it and ensure `codex` is on PATH,
+or pass a full path with `--codex-path` (or set `AGENTFORGE_CODEX_PATH`).
+
 ## Spec Location
 
 A sample spec template lives at `spec/spec.md`. Edit it or replace it with your own

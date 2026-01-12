@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -45,6 +46,10 @@ def main() -> None:
         "--output-dir",
         help="Write generated agents JSON into this directory (defaults to stdout).",
     )
+    generate_parser.add_argument(
+        "--codex-path",
+        help="Path to the codex CLI executable (overrides AGENTFORGE_CODEX_PATH).",
+    )
 
     run_parser = subparsers.add_parser("run", help="Run an agent definition.")
     run_parser.add_argument("--agent", required=True, help="Path to an agent definition.")
@@ -55,10 +60,17 @@ def main() -> None:
         "--context",
         help="Path to a JSON file providing execution context.",
     )
+    run_parser.add_argument(
+        "--codex-path",
+        help="Path to the codex CLI executable (overrides AGENTFORGE_CODEX_PATH).",
+    )
 
     args = parser.parse_args()
 
     try:
+        if args.codex_path:
+            os.environ["AGENTFORGE_CODEX_PATH"] = args.codex_path
+
         if args.command == "generate":
             if args.output_dir:
                 output_dir = Path(args.output_dir)
