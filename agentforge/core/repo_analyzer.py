@@ -52,6 +52,7 @@ _FRAMEWORK_DEPENDENCIES = {
 
 _IGNORE_DIRS = {
     ".git",
+    ".beads",
     "__pycache__",
     ".venv",
     "venv",
