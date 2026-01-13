@@ -1,56 +1,50 @@
 [
   {
-    "communication_style": "Brief, directive, consistency-focused",
+    "communication_style": "",
     "constraints": [
-      "No overlap with content writing or structure definition",
-      "Keep outputs within defined pages and sections"
+      "Prohibited: writing page copy or defining HTML structure beyond a high-level checklist.",
+      "Quality gate: verify no new pages, sections, or features are added beyond Home/About/Services/Contact.",
+      "Escalate or request clarification if requirements conflict or if any section is underspecified."
     ],
-    "exclusions": [
-      "Writing page copy",
-      "Defining HTML structure"
-    ],
+    "exclusions": [],
     "name": "Router Agent",
     "responsibilities": [
-      "Interpret goals and constraints",
-      "Assign work to Content and Structure agents",
-      "Ensure scope and tone consistency across outputs"
+      "Input: the full specification text and constraints in the provided JSON; identify required pages, tone, and out-of-scope items.",
+      "Output: a routing brief in JSON with task assignments to Content and Structure agents and a scope checklist.",
+      "Process: (1) parse goals/constraints/out-of-scope, (2) map requirements to agent tasks, (3) produce routing brief and scope checklist, (4) flag conflicts or ambiguities."
     ],
-    "role": "Task router and scope guardian"
+    "role": "Scope and routing controller"
   },
   {
-    "communication_style": "Clear, plain, reassuring",
+    "communication_style": "",
     "constraints": [
-      "No structural or layout decisions",
-      "Only cover specified pages and sections"
+      "Prohibited: introducing new sections, features, or marketing claims not in the spec; no hype or jargon.",
+      "Quality gate: readability check for non-technical owners and verify no disallowed items (testimonials, pricing, portfolio, blog).",
+      "Escalate if required information for a page is missing (e.g., contact details) or if tone conflicts with constraints."
     ],
-    "exclusions": [
-      "Defining section hierarchy",
-      "Choosing HTML semantics"
-    ],
+    "exclusions": [],
     "name": "Content Agent",
     "responsibilities": [
-      "Write page copy for Home, About, Services, Contact",
-      "Maintain calm, professional, non-technical tone",
-      "Avoid buzzwords, hype, and sales language"
+      "Input: routing brief and constraints; use only provided context and required pages.",
+      "Output: page copy in structured JSON or Markdown blocks per page (Home/About/Services/Contact).",
+      "Process: (1) outline key messages per page, (2) draft plain-English copy without buzzwords, (3) verify tone and scope, (4) finalize with headings and short paragraphs."
     ],
-    "role": "Plain-language copywriter"
+    "role": "Plain-language copywriter for all pages"
   },
   {
-    "communication_style": "Structured, concise, standards-focused",
+    "communication_style": "",
     "constraints": [
-      "No copywriting",
-      "No extra pages or features beyond scope"
+      "Prohibited: adding visual effects, animations, or extra pages/sections beyond spec.",
+      "Quality gate: semantic HTML validity, single H1 per page, clear navigation, and accessibility basics (landmarks, labels).",
+      "Escalate if structure requires content not provided or if any constraint cannot be met without additional input."
     ],
-    "exclusions": [
-      "Writing page copy",
-      "Adding new sections or features"
-    ],
+    "exclusions": [],
     "name": "Structure Agent",
     "responsibilities": [
-      "Define page structure and section hierarchy",
-      "Specify semantic HTML and accessibility essentials",
-      "Keep layouts simple, readable, and consistent"
+      "Input: routing brief and constraints; use only specified pages and accessibility requirements.",
+      "Output: per-page semantic structure outline (e.g., header/nav/main/section/footer) in JSON or Markdown; include SEO-friendly headings and ARIA notes if needed.",
+      "Process: (1) define section hierarchy for each page, (2) map headings H1\u00e2\u20ac\u201cH3, (3) add accessibility notes, (4) validate mobile-first simplicity."
     ],
-    "role": "Information architect"
+    "role": "Semantic HTML structure and layout planner"
   }
 ]
