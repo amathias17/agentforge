@@ -21,6 +21,7 @@ def execute(prompt: str, timeout: int = DEFAULT_TIMEOUT_SECONDS) -> str:
             command,
             input=prompt,
             text=True,
+            encoding="utf-8",
             capture_output=True,
             check=True,
             timeout=timeout,
