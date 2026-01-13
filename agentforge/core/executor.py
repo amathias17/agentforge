@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import shutil
 import json
 import os
 import subprocess
@@ -54,7 +55,46 @@ def _build_command(executable: str) -> list[str]:
         return ["cmd", "/c", executable]
     if lowered.endswith(".ps1"):
         return ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", executable]
+
+    resolved = _resolve_windows_shim(executable)
+    if resolved:
+        return resolved
+
     return [executable]
+
+
+def _resolve_windows_shim(executable: str) -> list[str] | None:
+    path = Path(executable)
+    if path.suffix:
+        return None
+
+    for suffix in (".cmd", ".bat"):
+        candidate = _resolve_candidate(path, suffix)
+        if candidate:
+            return ["cmd", "/c", candidate]
+
+    candidate = _resolve_candidate(path, ".ps1")
+    if candidate:
+        return [
+            "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            candidate,
+        ]
+
+    return None
+
+
+def _resolve_candidate(path: Path, suffix: str) -> str | None:
+    if path.parent != Path(".") or path.is_absolute():
+        candidate = path.with_suffix(suffix)
+        if candidate.exists():
+            return str(candidate)
+        return None
+
+    return shutil.which(f"{path}{suffix}")
 
 
 def run_with_agent(agent_path: str, task: str, context: dict) -> str:

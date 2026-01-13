@@ -1,5 +1,6 @@
 import os
 import subprocess
+import shutil
 
 import pytest
 
@@ -74,3 +75,27 @@ def test_execute_wraps_powershell_script(monkeypatch: pytest.MonkeyPatch) -> Non
     assert seen["args"][4] == "-File"
     assert seen["args"][5].endswith("codex.ps1")
     assert seen["args"][6:8] == ["exec", "-"]
+
+
+def test_execute_prefers_cmd_when_available(monkeypatch: pytest.MonkeyPatch) -> None:
+    seen = {}
+
+    def fake_run(args, **_kwargs):
+        seen["args"] = args
+        return subprocess.CompletedProcess(args=args, returncode=0, stdout="ok")
+
+    def fake_which(value: str) -> str | None:
+        if value == "codex.cmd":
+            return r"C:\tools\codex.cmd"
+        if value == "codex.ps1":
+            return r"C:\tools\codex.ps1"
+        return None
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    monkeypatch.setattr(shutil, "which", fake_which)
+    monkeypatch.delenv("AGENTFORGE_CODEX_PATH", raising=False)
+
+    executor.execute("prompt")
+
+    assert seen["args"][:2] == ["cmd", "/c"]
+    assert seen["args"][2].endswith("codex.cmd")
