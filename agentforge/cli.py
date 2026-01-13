@@ -88,7 +88,7 @@ def main() -> None:
         if args.command == "run":
             task_text = args.task
             if args.task_file:
-                task_text = Path(args.task_file).read_text(encoding="utf-8")
+                task_text = Path(args.task_file).read_text(encoding="utf-8-sig")
             context = _load_json_file(args.context) if args.context else {}
             result = executor.run_with_agent(args.agent, task_text, context)
             print(result)
