@@ -99,3 +99,23 @@ def test_execute_prefers_cmd_when_available(monkeypatch: pytest.MonkeyPatch) -> 
 
     assert seen["args"][:2] == ["cmd", "/c"]
     assert seen["args"][2].endswith("codex.cmd")
+
+
+def test_execute_prefers_cmd_over_ps1_path(monkeypatch: pytest.MonkeyPatch) -> None:
+    seen = {}
+
+    def fake_run(args, **_kwargs):
+        seen["args"] = args
+        return subprocess.CompletedProcess(args=args, returncode=0, stdout="ok")
+
+    def fake_exists(self):
+        return str(self).lower() == r"c:\tools\codex.cmd"
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    monkeypatch.setattr(executor.Path, "exists", fake_exists)
+    monkeypatch.setenv("AGENTFORGE_CODEX_PATH", r"C:\tools\codex.ps1")
+
+    executor.execute("prompt")
+
+    assert seen["args"][:2] == ["cmd", "/c"]
+    assert seen["args"][2].endswith("codex.cmd")

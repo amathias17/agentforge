@@ -54,6 +54,9 @@ def _build_command(executable: str) -> list[str]:
     if lowered.endswith(".cmd") or lowered.endswith(".bat"):
         return ["cmd", "/c", executable]
     if lowered.endswith(".ps1"):
+        cmd_candidate = _resolve_cmd_for_ps1(executable)
+        if cmd_candidate:
+            return ["cmd", "/c", cmd_candidate]
         return ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", executable]
 
     resolved = _resolve_windows_shim(executable)
@@ -83,6 +86,27 @@ def _resolve_windows_shim(executable: str) -> list[str] | None:
             "-File",
             candidate,
         ]
+
+    return None
+
+
+def _resolve_cmd_for_ps1(executable: str) -> str | None:
+    path = Path(executable)
+    if path.suffix.lower() != ".ps1":
+        return None
+
+    base = path.with_suffix("")
+    if path.parent != Path(".") or path.is_absolute():
+        for suffix in (".cmd", ".bat"):
+            candidate = base.with_suffix(suffix)
+            if candidate.exists():
+                return str(candidate)
+        return None
+
+    for suffix in (".cmd", ".bat"):
+        resolved = shutil.which(f"{base}{suffix}")
+        if resolved:
+            return resolved
 
     return None
 
