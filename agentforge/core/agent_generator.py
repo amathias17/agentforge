@@ -29,13 +29,7 @@ def generate_agents(spec: dict, repo_meta: dict) -> list[dict]:
     for agent in agents:
         if not isinstance(agent, dict):
             raise ValueError("Each agent must be a JSON object.")
-        missing = _REQUIRED_FIELDS - agent.keys()
-        if missing:
-            raise ValueError(f"Agent missing required fields: {sorted(missing)}")
-        unknown = set(agent.keys()) - _REQUIRED_FIELDS - _OPTIONAL_FIELDS
-        if unknown:
-            raise ValueError(f"Agent has unknown fields: {sorted(unknown)}")
-        normalized.append(agent)
+        normalized.append(_normalize_agent(agent))
 
     return normalized
 
@@ -82,6 +76,86 @@ def _build_template_context(agent: dict) -> dict:
         "exclusions": _format_section(agent.get("exclusions", "")),
         "communication_style": agent.get("communication_style", ""),
     }
+
+
+def _normalize_agent(agent: dict) -> dict:
+    missing = _REQUIRED_FIELDS - agent.keys()
+    if missing:
+        raise ValueError(f"Agent missing required fields: {sorted(missing)}")
+    unknown = set(agent.keys()) - _REQUIRED_FIELDS - _OPTIONAL_FIELDS
+    if unknown:
+        raise ValueError(f"Agent has unknown fields: {sorted(unknown)}")
+
+    return {
+        "name": _normalize_text_field(agent.get("name"), "name", required=True),
+        "role": _normalize_text_field(agent.get("role"), "role", required=True),
+        "responsibilities": _normalize_list_field(
+            agent.get("responsibilities"), "responsibilities", required=True
+        ),
+        "constraints": _normalize_list_field(
+            agent.get("constraints"), "constraints", required=True
+        ),
+        "exclusions": _normalize_list_field(
+            agent.get("exclusions"), "exclusions", required=False
+        ),
+        "communication_style": _normalize_text_field(
+            agent.get("communication_style"), "communication_style", required=False
+        ),
+    }
+
+
+def _normalize_text_field(value: object, field: str, required: bool) -> str:
+    if value is None:
+        if required:
+            raise ValueError(f"Agent field '{field}' is required.")
+        return ""
+    if not isinstance(value, str):
+        raise ValueError(f"Agent field '{field}' must be a string.")
+    trimmed = value.strip()
+    if required and not trimmed:
+        raise ValueError(f"Agent field '{field}' must not be empty.")
+    return trimmed
+
+
+def _normalize_list_field(value: object, field: str, required: bool) -> list[str]:
+    if value is None:
+        if required:
+            raise ValueError(f"Agent field '{field}' is required.")
+        return []
+    if isinstance(value, str):
+        items = _split_list_text(value)
+    elif isinstance(value, list):
+        items = []
+        for item in value:
+            if item is None:
+                continue
+            if not isinstance(item, str):
+                raise ValueError(f"Agent field '{field}' items must be strings.")
+            cleaned = item.strip()
+            if cleaned:
+                items.append(cleaned)
+    else:
+        raise ValueError(f"Agent field '{field}' must be a list of strings.")
+
+    if required and not items:
+        raise ValueError(f"Agent field '{field}' must include at least one entry.")
+    return items
+
+
+def _split_list_text(value: str) -> list[str]:
+    items: list[str] = []
+    for raw_line in value.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        line = re.sub(r"^[-*]\s+", "", line)
+        if line:
+            items.append(line)
+    if not items:
+        cleaned = value.strip()
+        if cleaned:
+            items.append(cleaned)
+    return items
 
 
 def _format_section(value: object) -> str:

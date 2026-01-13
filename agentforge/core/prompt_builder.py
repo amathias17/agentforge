@@ -12,7 +12,11 @@ def build_agent_generation_prompt(spec: dict, repo_meta: dict) -> str:
         "You are designing role-based AI agents.\n"
         "You must not execute tasks, run commands, write files, or perform any actions.\n"
         "Return structured JSON only.\n"
-        "Minimize the number of agents and ensure roles do not overlap.\n\n"
+        "Minimize the number of agents and ensure roles do not overlap.\n"
+        "Each agent must be actionable, reliable, and safe.\n"
+        "Responsibilities should be specific, outcome-focused, and non-overlapping.\n"
+        "Constraints should include quality checks, escalation or handoff rules, and scope limits.\n"
+        "Avoid vague phrases like 'assist' or 'help' without concrete scope.\n\n"
         "Output schema:\n"
         "{\n"
         '  "agents": [\n'
